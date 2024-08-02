@@ -1,0 +1,45 @@
+﻿@page "/counter"
+@using FamilySync.Blazor.Web.Providers
+@using FamilySync.Blazor.Web.Services
+
+@inject FamilySyncAuthenticationStateProvider AuthenticationProvider
+@inject IAuthenticationFacade AuthFacade
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <div>Please login before accessing the counter.</div>
+    </NotAuthorized>
+    <Authorizing>
+        <div>Loading...</div>
+    </Authorizing>
+    <Authorized>
+        <div>Authenticated</div>
+        <p>User: @AuthenticationProvider.CurrentUser.Username</p>
+
+        <p role="status">Current count: @currentCount</p>
+
+        @if (!string.IsNullOrWhiteSpace(responseText))
+        {
+            <p>Current response text is: @responseText</p>
+        }
+
+        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private int currentCount = 0;
+    private string? responseText = default!;
+
+    private async Task IncrementCount()
+    {
+        currentCount++;
+
+        responseText = await AuthFacade.Test();
+    }
+
+}

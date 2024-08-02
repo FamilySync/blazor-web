@@ -1,0 +1,14 @@
+@page "/logout"
+@using FamilySync.Blazor.Web.Services
+
+@inject NavigationManager NavigationManager
+@inject IAuthenticationFacade AuthenticationFacade
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthenticationFacade.Logout();
+        NavigationManager.NavigateTo(new("/"));
+    }
+}

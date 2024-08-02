@@ -1,0 +1,26 @@
+﻿@page "/"
+@using FamilySync.Blazor.Web.Providers
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject FamilySyncAuthenticationStateProvider AuthenticationProvider
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<AuthorizeView>
+    <Authorized>
+        <div>Authenticated</div>
+        <p>User: @AuthenticationProvider.CurrentUser!.Username</p>
+    </Authorized>
+    <Authorizing>
+        <div>Loading...</div>
+    </Authorizing>
+    <NotAuthorized>
+        <div>Not authenticated</div>
+    </NotAuthorized>
+</AuthorizeView>
