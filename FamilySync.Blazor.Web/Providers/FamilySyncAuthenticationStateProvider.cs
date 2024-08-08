@@ -14,8 +14,8 @@ public sealed class FamilySyncAuthenticationStateProvider : AuthenticationStateP
     {
         _authFacade = authFacade;
 
-        _authFacade.NotifyUserLogin += OnNotifyUserLogin;
-        _authFacade.NotifyUserLogout += OnNotifyUserLogout;
+        _authFacade.NotifyUserSignin += OnNotifyUserSignin;
+        _authFacade.NotifyUserSignout += OnNotifyUserSignout;
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -27,7 +27,7 @@ public sealed class FamilySyncAuthenticationStateProvider : AuthenticationStateP
         return new(principal);
     }
 
-    private Task OnNotifyUserLogin(ClaimsPrincipal principal)
+    private Task OnNotifyUserSignin(ClaimsPrincipal principal)
     {
         // TODO: CurrentUser needs a better implementation of getting the users data when they are authenticated ...
         
@@ -39,7 +39,7 @@ public sealed class FamilySyncAuthenticationStateProvider : AuthenticationStateP
         return Task.CompletedTask;
     }
 
-    private Task OnNotifyUserLogout()
+    private Task OnNotifyUserSignout()
     {
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new())));
         CurrentUser = null;
@@ -48,7 +48,7 @@ public sealed class FamilySyncAuthenticationStateProvider : AuthenticationStateP
 
     public void Dispose()
     {
-        _authFacade.NotifyUserLogin -= OnNotifyUserLogin;
-        _authFacade.NotifyUserLogout -= OnNotifyUserLogout;
+        _authFacade.NotifyUserSignin -= OnNotifyUserSignin;
+        _authFacade.NotifyUserSignout -= OnNotifyUserSignout;
     }
 }

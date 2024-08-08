@@ -6,9 +6,10 @@ namespace FamilySync.Blazor.Web.Clients;
 
 public interface IIdentityClient
 {
-    public Task<string> Login(Login request);
+    public Task<IdentityDTO> Register(SignupRequest request);
+    public Task<string> Signin(SigninRequest request);
     public Task<string?> RefreshAccessToken();
-    public Task Logout();
+    public Task Signout();
     public Task<string?> Test(string accessToken);
 }
 
@@ -21,26 +22,46 @@ public class IdentityClient : IIdentityClient
         _client = client;
     }
 
-    public async Task<string> Login(Login request)
+    public async Task<IdentityDTO> Register(SignupRequest request)
+    {
+        var response = await _client.PostAsJsonAsync($"{_client.BaseAddress}/identities", request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            // TODO: Setup exception handling in the browser ..
+            throw new Exception($"Failed to register!: {response.ReasonPhrase}");
+        }
+
+        var dto = await response.Content.ReadFromJsonAsync<IdentityDTO>();
+
+        if (dto is null)
+        {
+            throw new Exception("Failed to read dto!");
+        }
+
+        return dto;
+    }
+
+    public async Task<string> Signin(SigninRequest request)
     {
         var response = await _client.PostAsJsonAsync($"{_client.BaseAddress}/sessions", request);
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new UnauthorizedAccessException($"Login endpoint failed!: {response.ReasonPhrase}");
+            throw new UnauthorizedAccessException($"Signin endpoint failed!: {response.ReasonPhrase}");
         }
 
-        var authToken = await response.Content.ReadFromJsonAsync<AuthToken>();
+        var dto = await response.Content.ReadFromJsonAsync<AuthTokenDTO>();
         
-        if (authToken is null)
+        if (dto is null)
         {
             throw new UnauthorizedAccessException("Failed to read AuthToken!");
         }
         
-        return authToken.AccessToken;
+        return dto.AccessToken;
     }
 
-    public async Task Logout()
+    public async Task Signout()
     {
         var response = await _client.DeleteAsync($"{_client.BaseAddress}/sessions/current");
 
@@ -49,12 +70,7 @@ public class IdentityClient : IIdentityClient
             Console.WriteLine($"Something went wrong when logging out! {response.ReasonPhrase}");
         }
     }
-
-    public Task<string?> Test()
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public async Task<string?> RefreshAccessToken()
     {
         var response = await _client.PutAsync($"{_client.BaseAddress}/sessions/current", null);
@@ -65,7 +81,7 @@ public class IdentityClient : IIdentityClient
             return null;
         }
 
-        var authToken = await response.Content.ReadFromJsonAsync<AuthToken>();
+        var authToken = await response.Content.ReadFromJsonAsync<AuthTokenDTO>();
 
         return authToken?.AccessToken;
     }

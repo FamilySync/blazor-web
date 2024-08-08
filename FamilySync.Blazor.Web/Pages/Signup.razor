@@ -1,0 +1,53 @@
+@page "/signup"
+@using FamilySync.Blazor.Web.Models.Requests
+@using FamilySync.Blazor.Web.Services
+
+@inject IAuthenticationFacade AuthenticationFacade
+
+<PageTitle>Sign up</PageTitle>
+
+<h1>Sign up</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <StatusMessage Message="@errorMessage"/>
+            <EditForm Model="Request" method="post" OnValidSubmit="RegisterUser" FormName="signin">
+                <DataAnnotationsValidator/>
+                <h2>Use a local account to log in.</h2>
+                <hr/>
+                <ValidationSummary class="text-danger" role="alert"/>
+                <div class="form-floating mb-3">
+                    <InputText type="username" @bind-Value="Request.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="username"/>
+                    <label for="username" class="form-label">Username</label>
+                    <ValidationMessage For="() => Request.Username" class="text-danger"/>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Request.Email" class="form-control" autocomplete="email" aria-required="true" placeholder="name@example.com"/>
+                    <label for="email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Request.Email" class="text-danger"/>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText type="password" @bind-Value="Request.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password"/>
+                    <label for="password" class="form-label">Password</label>
+                    <ValidationMessage For="() => Request.Password" class="text-danger"/>
+                </div>     
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Sign up</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code
+{
+    private string? errorMessage;
+    
+    [SupplyParameterFromForm] 
+    private SignupRequest Request { get; set; } = new();
+    
+    private async Task RegisterUser()
+    {
+        await AuthenticationFacade.Register(Request);
+    }
+}

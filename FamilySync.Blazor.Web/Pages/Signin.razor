@@ -1,8 +1,8 @@
-@page "/login"
+@page "/signin"
 @using FamilySync.Blazor.Web.Services
 
 @inject IAuthenticationFacade AuthenticationFacade
-
+@inject NavigationManager NavigationManager
 <PageTitle>Log in</PageTitle>
 
 <h1>Log in</h1>
@@ -10,7 +10,7 @@
     <div class="col-md-4">
         <section>
             <StatusMessage Message="@errorMessage"/>
-            <EditForm Model="Request" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <EditForm Model="Request" method="post" OnValidSubmit="SigninUser" FormName="signin">
                 <DataAnnotationsValidator/>
                 <h2>Use a local account to log in.</h2>
                 <hr/>
@@ -33,7 +33,7 @@
                         <a href="Account/ForgotPassword">Forgot your password?</a>
                     </p>
                     <p>
-                        @* <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a> *@
+                        <a href="signup"> Sign up </a>    
                     </p>
                     <p>
                         <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
@@ -49,10 +49,10 @@
     private string? errorMessage;
     
     [SupplyParameterFromForm] 
-    private  Models.Requests.Login Request { get; set; } = new();
+    private  Models.Requests.SigninRequest Request { get; set; } = new();
     
-    private async Task LoginUser()
+    private async Task SigninUser()
     {
-        await AuthenticationFacade.Login(Request);
+        await AuthenticationFacade.Signin(Request);
     }
 }

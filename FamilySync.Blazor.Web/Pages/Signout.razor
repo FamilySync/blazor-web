@@ -1,4 +1,4 @@
-@page "/logout"
+@page "/signout"
 @using FamilySync.Blazor.Web.Services
 
 @inject NavigationManager NavigationManager
@@ -8,7 +8,7 @@
 {
     protected override async Task OnInitializedAsync()
     {
-        await AuthenticationFacade.Logout();
+        await AuthenticationFacade.Signout();
         NavigationManager.NavigateTo(new("/"));
     }
 }

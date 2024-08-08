@@ -1,29 +1,32 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FamilySync.Blazor.Web.Clients;
+using FamilySync.Blazor.Web.Models.DTOs;
 using FamilySync.Blazor.Web.Models.Requests;
 
 namespace FamilySync.Blazor.Web.Services;
 
 public interface IAuthenticationFacade
 {
-    event Func<ClaimsPrincipal, Task> NotifyUserLogin;
-    event Func<Task> NotifyUserLogout;
+    event Func<ClaimsPrincipal, Task> NotifyUserSignin;
+    event Func<Task> NotifyUserSignout;
     
     /// <summary>
     /// Tries to validate Access Token from Local Storage <see cref="TokenService.ValidateAccessToken"/>
     /// </summary>
     /// <returns>The authorized user or Anonymous user (not authorized user) </returns>
     Task<ClaimsPrincipal> TryGetAuthenticatedUser();
-    Task<bool> Login(Login request);
-    Task Logout();
+
+    Task<bool> Register(SignupRequest request);
+    Task<bool> Signin(SigninRequest request);
+    Task Signout();
     Task<string?> Test();
 }
 
 public class AuthenticationFacade : IAuthenticationFacade
 {
-    public event Func<ClaimsPrincipal, Task> NotifyUserLogin;
-    public event Func<Task> NotifyUserLogout;
+    public event Func<ClaimsPrincipal, Task> NotifyUserSignin;
+    public event Func<Task> NotifyUserSignout;
 
     private readonly IIdentityClient _client;
     private readonly ITokenService _tokenService;
@@ -50,7 +53,7 @@ public class AuthenticationFacade : IAuthenticationFacade
             if (!refreshed)
             {
                 await _tokenService.ClearAccessToken();
-                await _client.Logout();
+                await _client.Signout();
                 return anonymousState;
             }
         }
@@ -65,9 +68,16 @@ public class AuthenticationFacade : IAuthenticationFacade
         return new(principal);
     }
 
-    public async Task<bool> Login(Login request)
+    public async Task<bool> Register(SignupRequest request)
     {
-        var accessToken = await _client.Login(request);
+        await _client.Register(request);
+
+        return true;
+    }
+
+    public async Task<bool> Signin(SigninRequest request)
+    {
+        var accessToken = await _client.Signin(request);
         
         if (string.IsNullOrEmpty(accessToken))
         {
@@ -76,17 +86,17 @@ public class AuthenticationFacade : IAuthenticationFacade
 
         await _tokenService.CacheAccessToken(accessToken);
 
-        await NotifyUserLogin(ReadAccessToken(accessToken));
+        await NotifyUserSignin(ReadAccessToken(accessToken));
         
         return true;
     }
 
-    public async Task Logout()
+    public async Task Signout()
     {
         await _tokenService.ClearAccessToken();
-        await _client.Logout();
+        await _client.Signout();
         
-        await NotifyUserLogout();
+        await NotifyUserSignout();
     }
 
     public async Task<string?> Test()

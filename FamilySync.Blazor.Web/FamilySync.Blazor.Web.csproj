@@ -27,9 +27,8 @@
     <ItemGroup>
       <AdditionalFiles Include="Pages\Counter.razor" />
       <AdditionalFiles Include="Pages\Home.razor" />
-      <AdditionalFiles Include="Pages\Login.razor" />
-      <AdditionalFiles Include="Pages\Logout.razor" />
-      <AdditionalFiles Include="Pages\RedirectToLogin.razor" />
+      <AdditionalFiles Include="Pages\Signin.razor" />
+      <AdditionalFiles Include="Pages\RedirectToSignin.razor" />
     </ItemGroup>
 
 </Project>
